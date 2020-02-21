@@ -20,7 +20,7 @@ class Canvas extends Component {
     super(props, context);
 
     this.state = {
-      zoom: -1,
+      zoom: 0,
       selectedFigureId: null,
       cursorPos: {lat: 0, lng: 0},
     };
@@ -41,6 +41,12 @@ class Canvas extends Component {
       onSelectionChange(selectedFigureId);
     }
   }
+
+  componentDidMount() {
+    console.log('--重新调整窗口大小--')
+    window.resizeTo(800,600)
+  }
+
 
   getSelectedFigure() {
     const {selectedFigureId} = this.state;
@@ -291,7 +297,7 @@ class Canvas extends Component {
             <div
               /*style={{position: 'fixed', bottom: 0, right: 0, zIndex: -5000, opacity: 0}}*/
             >
-              <canvas id="test-canvas" height="500" width="500" style={{opacity: 0}}></canvas>
+              <canvas id="test-canvas" height="500" width="500" style={{opacity:0}}></canvas>
             </div>
             <ZoomControl position="bottomright"/>
             <Control className="leaflet-bar" position="bottomright">

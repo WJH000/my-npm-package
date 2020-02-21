@@ -56,10 +56,10 @@ export default class LabelingLoader extends Component {
     const {labelData = {labels: {bbox: [], polygon: []}}} = this.state;
     const bbox = labelData && labelData.labels ? labelData.labels.bbox : [];
     const polygon = labelData && labelData.labels ? labelData.labels.polygon : [];
-    console.log('--bbox--', bbox, '--polygon--', polygon);
     if (this.labelingAppRef && this.labelingAppRef.current) {
       const canvasComp = this.labelingAppRef.current.compRef.current.compRef.current.compRef.current.canvasRef.current;
       const map = canvasComp.mapRef.current.leafletElement;
+      const pixelOrigin = map.getPixelOrigin();
 
       let pBoxList = []     // 矩形框集合
       let pPolygonList = []     // 矩形框集合
@@ -70,7 +70,10 @@ export default class LabelingLoader extends Component {
           const points = []    // 单个矩形框坐标：坐上+右下
           for (let j = 0; j < pbox.points.length; j++) {
             const layerLatlng = pbox.points[j]
-            points.push(map.latLngToLayerPoint(layerLatlng))
+            // 换算：需要加图层上的初始坐标
+            const layerPoint = map.latLngToLayerPoint(layerLatlng)
+            const newPoint = [layerPoint.x + pixelOrigin.x, layerPoint.y + pixelOrigin.y]
+            points.push(newPoint)
           }
           pBoxList.push(points)
         }
@@ -81,14 +84,17 @@ export default class LabelingLoader extends Component {
           const ppolygon = polygon[i]
           const points = []    // 单个多边形框坐标
           for (let j = 0; j < ppolygon.points.length; j++) {
+            // 换算：需要加图层上的初始坐标
             const layerLatlng = ppolygon.points[j]
-            points.push(map.latLngToLayerPoint(layerLatlng))
+            const layerPoint = map.latLngToLayerPoint(layerLatlng)
+            const newPoint = [layerPoint.x + pixelOrigin.x, layerPoint.y + pixelOrigin.y]
+            points.push(newPoint)
           }
           pPolygonList.push(points)
         }
       }
 
-      callback && callback({pBoxList, pPolygonList})
+      callback && callback({pBoxList, pPolygonList, pixelOrigin})
     }
   }
 
